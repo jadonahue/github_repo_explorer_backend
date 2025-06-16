@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import pool from '../config/db';
+import axios from 'axios';
 
 // Get all favorite repos for the logged-in user
 export const getFavorites = async (
@@ -78,7 +79,7 @@ export const saveFavorite = async (
     }
 };
 
-// Delete a favorite repo (placeholder for now)
+// Delete a favorite repo
 export const deleteFavorite = async (
     req: AuthenticatedRequest,
     res: Response
@@ -108,5 +109,36 @@ export const deleteFavorite = async (
     } catch (error) {
         console.error('Error deleting favorite:', error);
         res.status(500).json({ message: 'Server error deleting favorite' });
+    }
+};
+
+// Search GitHub repos by username
+export const searchRepo = async (req: AuthenticatedRequest, res: Response) => {
+    const username = req.query.username as string;
+
+    if (!username) {
+        res.status(400).json({ message: 'Username is required' });
+
+        return
+    }
+
+    try {
+        const response = await axios.get(
+            `https://api.github.com/users/${username}/repos`
+        );
+
+        const repos = response.data.map((repo: any) => ({
+            repo_id: repo.id,
+            repo_name: repo.name,
+            description: repo.description,
+            stars: repo.stargazers_count,
+            language: repo.language,
+            html_url: repo.html_url,
+        }));
+
+        res.status(200).json(repos);
+    } catch (error: any) {
+        console.error('GitHub API error:', error.message);
+        res.status(500).json({ message: 'Failed to fetch GitHub repos' });
     }
 };

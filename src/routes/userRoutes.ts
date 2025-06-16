@@ -4,6 +4,7 @@ import {
     getFavorites,
     saveFavorite,
     deleteFavorite,
+    searchRepo,
 } from '../controller/userController';
 
 const router = express.Router();
@@ -14,5 +15,6 @@ router.use(authenticateToken);
 router.get('/favorites', getFavorites);
 router.post('/favorites', saveFavorite);
 router.delete('/favorites/:id', deleteFavorite);
+router.get('/searchRepo', searchRepo);
 
 export default router;

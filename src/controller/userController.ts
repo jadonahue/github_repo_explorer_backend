@@ -85,13 +85,13 @@ export const deleteFavorite = async (
     res: Response
 ) => {
     const userId = req.user?.id;
-    const favoriteId = req.params.id;
+    const repoId = req.params.id;
 
     try {
-        // Check if the favorite exists and belongs to this user
+        // Check if the favorite exists with matching user_id and repo_id
         const check = await pool.query(
-            'SELECT * FROM favorites WHERE id = $1 AND user_id = $2',
-            [favoriteId, userId]
+            'SELECT * FROM favorites WHERE user_id = $1 AND repo_id = $2',
+            [userId, repoId]
         );
 
         if (check.rows.length === 0) {
@@ -102,8 +102,11 @@ export const deleteFavorite = async (
             return;
         }
 
-        // Delete the favorite
-        await pool.query('DELETE FROM favorites WHERE id = $1', [favoriteId]);
+        // Delete the favorite by user_id and repo_id
+        await pool.query(
+            'DELETE FROM favorites WHERE user_id = $1 AND repo_id = $2',
+            [userId, repoId]
+        );
 
         res.status(200).json({ message: 'Favorite deleted successfully' });
     } catch (error) {
@@ -119,7 +122,7 @@ export const searchRepo = async (req: AuthenticatedRequest, res: Response) => {
     if (!username) {
         res.status(400).json({ message: 'Username is required' });
 
-        return
+        return;
     }
 
     try {

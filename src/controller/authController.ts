@@ -34,15 +34,34 @@ export const registerUser = async (req: Request, res: Response) => {
 
         // Insert new user into DB
         const result = await pool.query(
-            'INSERT INTO users (username, email, password) VALUES ($1, $2) RETURNING id, email',
+            'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
             [email, hashedPassword]
         );
 
         // Return the newly created user info (excluding password)
         const newUser = result.rows[0];
+
+        const jwtSecret = process.env.JWT_SECRET;
+
+        if (!jwtSecret) {
+            console.error(
+                'JWT_SECRET is missing from the environment variables!'
+            );
+            res.status(500).json({ message: 'JWT_SECRET not configured' });
+
+            return;
+        }
+
+        const token = jwt.sign(
+            { id: newUser.id, email: newUser.email }, // payload
+            jwtSecret,
+            { expiresIn: '60d' }
+        );
+
         res.status(201).json({
             message: 'User registered successfully',
             user: newUser,
+            token,
         });
     } catch (error) {
         console.error('Register error:', error);
@@ -100,7 +119,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
         // If passwords match, create a JWT token for authentication
         const token = jwt.sign(
-            { id: user.id, username: user.username }, // payload
+            { id: user.id, email: user.email }, // payload
             jwtSecret, // secret
             { expiresIn: '60d' } // token expiry
         );

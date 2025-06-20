@@ -6,10 +6,10 @@ import { RegisterUserInput, LoginUserInput } from '../types/authTypes';
 
 // Register a new user
 export const registerUser = async (req: Request, res: Response) => {
-    const { username, email, password } = req.body as RegisterUserInput;
+    const { email, password } = req.body as RegisterUserInput;
 
     // Validate required fields
-    if (!username || !email || !password) {
+    if (!email || !password) {
         res.status(400).json({ message: 'All fields are required' });
 
         return;
@@ -18,8 +18,8 @@ export const registerUser = async (req: Request, res: Response) => {
     try {
         // Check if username or email is already taken
         const userCheck = await pool.query(
-            'SELECT * FROM users WHERE email = $1 OR username = $2',
-            [email, username]
+            'SELECT * FROM users WHERE email = $1',
+            [email]
         );
 
         if (userCheck.rows.length > 0) {
@@ -34,8 +34,8 @@ export const registerUser = async (req: Request, res: Response) => {
 
         // Insert new user into DB
         const result = await pool.query(
-            'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
-            [username, email, hashedPassword]
+            'INSERT INTO users (username, email, password) VALUES ($1, $2) RETURNING id, email',
+            [email, hashedPassword]
         );
 
         // Return the newly created user info (excluding password)

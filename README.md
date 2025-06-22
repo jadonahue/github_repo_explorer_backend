@@ -9,7 +9,7 @@ Express + PostgreSQL REST API powering user auth, repo search, and favorites.
 ## Features
 
 -   **User management**: register, login with JWT
--   **Repo search**: fetch via GitHub API (`axios`)
+-   **Repo search**: fetch via GitHub API (`fetch` or `axios`)
 -   **Favorites**: CRUD operations linked to authenticated users
 -   **Typescript** with type safety throughout
 -   **PostgreSQL** schema:

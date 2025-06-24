@@ -1,6 +1,6 @@
 # GitHub Repo Explorer — Backend
 
-Express + PostgreSQL REST API powering user auth, repo search, and favorites.
+Express + PostgreSQL REST API powering user auth, Github username repo search, and saving repos to favorites.
 
 [Check out the frontend Github Repo Explorer here](https://github.com/jadonahue/github_repo_explorer_frontend)
 
